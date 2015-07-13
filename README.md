@@ -18,9 +18,40 @@ Or install it yourself as:
 
     $ gem install in_place_edit_with_datepicker
 
+## Setup
+
+Add the following lines in your application.js in this sequence
+
+//= require jquery
+//= require jquery_ujs
+//= require jquery-ui
+//= require jquery-ui-timepicker-addon
+//= require jquery.purr
+//= require best_in_place
+//= require best_in_place_datetime
+//= require turbolinks
+//= require_tree .
+
+Add the following to your application.css in this sequence
+
+ *= jquery-ui-timepicker-addon
+ *= require_tree .
+ *= require_self
+ */
+
+Download the following files:
+1) http://trentrichardson.com/examples/timepicker/jquery-ui-timepicker-addon.css and save to assets/stylesheets
+2) http://trentrichardson.com/examples/timepicker/jquery-ui-timepicker-addon.js and save to assets/javascripts
+
 ## Usage
 
-TODO: Write usage instructions here
+The gem works exactly as the best_in_place gem, say for eg:
+
+<%= best_in_place @user, :name %>
+
+For type datetime, 
+
+<%= best_in_place @user, :date_of_birth, as: :datetime %>
 
 ## Contributing
 
