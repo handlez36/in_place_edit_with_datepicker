@@ -55,7 +55,7 @@ For type datetime,
 ```
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/in_place_edit_with_datepicker/fork )
+1. Fork it ( https://github.com/AasthaKesarwani1539/in_place_edit_with_datepicker/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
