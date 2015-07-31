@@ -68,7 +68,8 @@ For type datetime,
 For type date, 
 ```ruby
     <%= best_in_place @user, :date_of_delivery, as: :date %>
-```For type time, 
+```
+For type time, 
 ```ruby
     <%= best_in_place @user, :time_of_delivery, as: :time %>
 ```
