@@ -4,7 +4,6 @@ module BestInPlace
 
     class Renderer < Struct.new(:opts)
       def render_json(object)
-        puts "RENDERING JSON!!!"
         case opts[:type]
           when :model
             { display_as: object.send(opts[:method]) }.to_json
@@ -31,25 +30,19 @@ module BestInPlace
     end
 
     def add_model_method(klass, attr, display_as)
-      puts " HERE !!!!!!"
-      model_attributes(klass)[attr.to_s] = Renderer.new({ method: display_as.to_sym, type: :model })
+      model_attributes(klass)[attr.to_s] = Renderer.new method: display_as.to_sym, type: :model
     end
 
     def add_helper_method(klass, attr, helper_method, helper_options = nil)
-      model_attributes(klass)[attr.to_s] = Renderer.new({ method: helper_method.to_sym, type: :helper, attr: attr, helper_options: helper_options })
+      model_attributes(klass)[attr.to_s] = Renderer.new method: helper_method.to_sym, type: :helper, attr: attr, helper_options: helper_options
     end
 
     def add_helper_proc(klass, attr, helper_proc)
-      puts " IN ADD HELPER PROC "
+      # model_attributes(klass)[attr.to_s] = Renderer.new type: :proc, attr: attr, proc: helper_proc
       model_attributes(klass)[attr.to_s] = Renderer.new({ type: :proc, attr: attr, proc: helper_proc })
     end
 
     def model_attributes(klass)
-      puts " FINDING MODEL ATTRIBUTES "
-      puts " - before "
-      puts " #{Utils.is_a? Module}"
-      puts " #{Utils.methods - Object.methods}"
-      puts " - after "
       key = Utils.object_to_key(klass)
       @@table[key]
     end
