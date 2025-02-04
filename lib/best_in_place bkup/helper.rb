@@ -1,6 +1,7 @@
 module BestInPlace
   module Helper
     def best_in_place(object, field, opts = {})
+
       best_in_place_assert_arguments(opts)
       type = opts[:as] || :input
       field = field.to_s
@@ -48,12 +49,6 @@ module BestInPlace
       options[:data]['bip-skip-blur'] = opts.has_key?(:skip_blur) ? opts[:skip_blur].presence : BestInPlace.skip_blur
 
       options[:data]['bip-url'] = url_for(opts[:url] || object)
-
-      if real_object.respond_to?(:new_record?) and real_object.new_record?
-        options[:data]['bip-new-object'] = true
-        # collect name => value map of unsaved attributes to be serialized
-        options[:data]['bip-extra-payload'] = Hash[real_object.changes.map { |k,v| [k, v[1]] }]
-      end
 
       options[:data]['bip-confirm'] = opts[:confirm].presence
       options[:data]['bip-value'] = html_escape(value).presence
@@ -137,48 +132,68 @@ module BestInPlace
       end
     end
 
-    def best_in_place_deprecated_options(opts)
-      deprecations = [
-          {from: :path, to: :url},
-          {from: :object_name, to: :param},
-          {from: :type, to: :as},
-          {from: :classes, to: :class},
-          {from: :nil, to: :place_holder},
-          {from: :use_confirm, to: :confirm},
-          {from: :sanitize, to: :raw}
-      ]
+    def best_in_place_deprecated_options(args)
+      if deprecated_option = args.delete(:path)
+        args[:url] = deprecated_option
+        ActiveSupport::Deprecation.warn('[Best_in_place] :path is deprecated in favor of :url ')
+      end
 
-      deprecator = ActiveSupport::Deprecation.new
-      deprecations.each do |deprecation|
-        if deprecated_option = opts.delete(deprecation[:from])
-          opts[deprecation[:from]] = deprecated_option
-          deprecator.warn("[Best_in_place] :#{deprecation[:from]} is deprecated in favor of :#{deprecation[:to]} ")
-        end
+      if deprecated_option = args.delete(:object_name)
+        args[:param] = deprecated_option
+        ActiveSupport::Deprecation.warn('[Best_in_place] :object_name is deprecated in favor of :param ')
+      end
+
+      if deprecated_option = args.delete(:type)
+        args[:as] = deprecated_option
+        ActiveSupport::Deprecation.warn('[Best_in_place] :type is deprecated in favor of :as ')
+      end
+
+      if deprecated_option = args.delete(:classes)
+        args[:class] = deprecated_option
+        ActiveSupport::Deprecation.warn('[Best_in_place] :classes is deprecated in favor of :class ')
+      end
+
+      if deprecated_option = args.delete(:nil)
+        args[:place_holder] = deprecated_option
+        ActiveSupport::Deprecation.warn('[Best_in_place] :nil is deprecated in favor of :place_holder ')
+      end
+
+      if deprecated_option = args.delete(:use_confirm)
+        args[:confirm] = deprecated_option
+        ActiveSupport::Deprecation.warn('[Best_in_place] :use_confirm is deprecated in favor of :confirm ')
+      end
+
+      if deprecated_option = args.delete(:sanitize)
+        args[:raw] = !deprecated_option
+        ActiveSupport::Deprecation.warn('[Best_in_place] :sanitize is deprecated in favor of :raw ')
       end
     end
 
     def best_in_place_collection_builder(type, collection)
-      return Array(collection) if collection.is_a?(Hash)
-
-      if type == :checkbox
-        best_in_place_collection_checkbox(collection)
-      else # :select
-        best_in_place_collection_select(collection)
+      collection = case collection
+        when Array
+          if type == :checkbox
+            if collection.length == 2
+              [['false', collection[0]], ['true', collection[1]]]
+            else
+              fail ArgumentError, '[Best_in_place] :collection array should have 2 values'
+            end
+          else # :select
+            case collection[0]
+              when Array
+                collection
+              else
+                if collection[0].length == 2
+                  collection.to_a
+                else
+                  collection.each_with_index.map{|a,i| [i+1,a]}
+                end
+            end
+          end
+        else
+          collection.to_a
       end
-    end
-
-    def best_in_place_collection_checkbox(collection)
-      if collection.length == 2
-        [['false', collection[0]], ['true', collection[1]]]
-      else
-        fail ArgumentError, '[Best_in_place] :collection array should have 2 values'
-      end
-    end
-
-    def best_in_place_collection_select(collection)
-      return Array(collection) if collection[0].is_a?(Array) || collection[0].length == 2
-
-      collection.each_with_index.map { |a, i| [i+1, a] }
+      collection
     end
 
     def best_in_place_default_collection
